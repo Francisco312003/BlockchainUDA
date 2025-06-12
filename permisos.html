@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MedBlock - Gestionar Permisos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* --- Paleta de Colores Profesional --- */
+      --primary-brand-color: #005A9C;
+      --secondary-brand-color: #007BFF;
+      --accent-color: #00BFA5; 
+      
+      --neutral-darkest: #212529;
+      --neutral-dark: #343A40;
+      --neutral-medium: #6C757D;
+      --neutral-light: #CED4DA;
+      --neutral-lighter: #E9ECEF;
+      --neutral-lightest: #F8F9FA;
+
+      --background-body: #F4F7FC;
+      --surface-primary: #FFFFFF;
+      
+      --success-color: #28A745;
+      --info-color: #17A2B8;
+      --warning-color: #FFC107;
+      --danger-color: #DC3545;
+      --revoked-color: #6c757d; /* Gris para permisos revocados/expirados */
+
+
+      /* --- Tipografía --- */
+      --font-family-primary: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+      --font-family-secondary: 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+      
+      /* --- UI Elements --- */
+      --border-radius-sm: 5px;
+      --border-radius-md: 10px;
+      --border-radius-lg: 15px;
+      
+      --box-shadow-subtle: 0 2px 4px rgba(0, 0, 0, 0.06);
+      --box-shadow-medium: 0 5px 15px rgba(0, 0, 0, 0.1);
+      --box-shadow-strong: 0 10px 25px rgba(0,0,0,0.12);
+
+      /* --- Transitions & Animations --- */
+      --transition-short: 0.2s ease-out;
+      --transition-medium: 0.3s ease-out;
+      --transition-long: 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+      
+      /* --- Navbar Specific --- */
+      --navbar-height: 90px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-family-secondary);
+      margin: 0;
+      padding-top: var(--navbar-height); 
+      background-color: var(--background-body);
+      color: var(--neutral-dark);
+      line-height: 1.7;
+      font-size: 16px;
+      overflow-x: hidden;
+    }
+
+    nav#mainNav {
+      background-color: rgba(255, 255, 255, 0.97); 
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: var(--box-shadow-medium);
+      border-bottom: 1px solid var(--neutral-lighter);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      z-index: 1000;
+      transition: top 0.4s var(--transition-medium), background-color 0.3s;
+      height: var(--navbar-height);
+      display: flex;
+      align-items: center;
+    }
+    
+    .nav-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        max-width: 1250px; 
+        margin: 0 auto;
+        padding: 0 25px;
+    }
+
+    #mainNav.nav-hidden {
+        top: calc(-1 * var(--navbar-height) - 10px);
+    }
+
+    .nav-logo img {
+        height: 60px; 
+        display: block;
+    }
+    
+    .nav-links {
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+
+    nav#mainNav a.nav-link {
+      color: var(--neutral-darkest);
+      text-decoration: none;
+      font-weight: 600;
+      font-family: var(--font-family-secondary);
+      padding: 0 20px; 
+      margin: 0 10px; 
+      border-bottom: 4px solid transparent;
+      transition: color var(--transition-short), border-color var(--transition-short);
+      font-size: 1.15em; 
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      display: inline-flex;
+      align-items: center;
+      height: 100%;
+    }
+
+    nav#mainNav a.nav-link:hover, 
+    nav#mainNav a.nav-link:focus, 
+    nav#mainNav a.nav-link.active {
+      color: var(--primary-brand-color);
+      border-bottom-color: var(--primary-brand-color);
+    }
+
+    main {
+      display: block;
+      padding: 50px 20px;
+      max-width: 900px; 
+      margin: 40px auto;
+    }
+
+    .page-section { 
+      background-color: var(--surface-primary);
+      padding: 35px 40px; /* Ajustado padding */
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--box-shadow-strong);
+      margin-bottom: 40px;
+      opacity: 0;
+      transform: translateY(40px);
+      animation-name: sectionFadeInUp;
+      animation-duration: 0.8s;
+      animation-timing-function: var(--transition-long);
+      animation-fill-mode: forwards;
+    }
+    .page-section:nth-child(1) { animation-delay: 0.1s; }
+    .page-section:nth-child(2) { animation-delay: 0.3s; }
+
+
+    h2 { 
+      font-family: var(--font-family-primary);
+      color: var(--primary-brand-color);
+      margin-top: 0;
+      margin-bottom: 30px;
+      font-size: 2.2em;
+      font-weight: 500;
+      border-bottom: 2px solid var(--secondary-brand-color);
+      padding-bottom: 15px;
+      text-align: center;
+    }
+    
+    h3 { 
+        font-family: var(--font-family-primary);
+        color: var(--neutral-darkest);
+        font-size: 1.6em;
+        margin-top: 0;
+        margin-bottom: 20px;
+        font-weight: 500;
+    }
+
+    /* --- Form Styling --- */
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    @media (min-width: 768px) {
+        .form-grid.two-columns {
+            grid-template-columns: 1fr 1fr;
+            gap: 30px 25px; 
+        }
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 10px; /* Añadido un poco de margen inferior */
+    }
+
+    .form-group label {
+        font-family: var(--font-family-secondary);
+        font-weight: 600;
+        color: var(--neutral-dark);
+        margin-bottom: 8px;
+        font-size: 0.95em;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="email"], /* Añadido por si acaso */
+    .form-group select {
+        width: 100%;
+        padding: 14px 18px;
+        font-family: var(--font-family-secondary);
+        font-size: 1em;
+        color: var(--neutral-darkest);
+        background-color: var(--neutral-lightest);
+        border: 1px solid var(--neutral-light);
+        border-radius: var(--border-radius-sm);
+        transition: border-color var(--transition-short), box-shadow var(--transition-short);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: var(--secondary-brand-color);
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        background-color: var(--surface-primary);
+    }
+    
+    .form-group select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23343A40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1em;
+        padding-right: 2.5rem;
+    }
+    
+    .form-actions {
+        margin-top: 30px; /* Ajustado margen */
+        text-align: center; /* Botón centrado en el formulario de permisos */
+    }
+
+    /* Estilos para el historial de permisos */
+    .permission-history-list {
+        list-style: none;
+        padding: 0;
+    }
+    .permission-item {
+        background-color: var(--surface-primary);
+        border: 1px solid var(--neutral-lighter);
+        border-left: 5px solid var(--info-color); /* Default color */
+        border-radius: var(--border-radius-md);
+        padding: 20px 25px;
+        margin-bottom: 20px;
+        box-shadow: var(--box-shadow-subtle);
+        display: grid;
+        grid-template-columns: 1fr auto; /* Content and Revoke button */
+        gap: 15px;
+        align-items: center;
+    }
+
+    .permission-item.status-active { border-left-color: var(--success-color); }
+    .permission-item.status-expirado { border-left-color: var(--warning-color); }
+    .permission-item.status-revocado { border-left-color: var(--revoked-color); opacity: 0.7; }
+
+    .permission-details p {
+        margin: 4px 0;
+        font-size: 0.95em;
+        line-height: 1.5;
+    }
+    .permission-details strong {
+        color: var(--neutral-darkest);
+        font-weight: 600;
+    }
+    .permission-details .wallet-address {
+        font-family: monospace;
+        color: var(--secondary-brand-color);
+        font-size: 0.9em;
+        word-break: break-all;
+    }
+    .permission-details .record-name {
+        font-style: italic;
+        color: var(--primary-brand-color);
+    }
+    .permission-status {
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.85em;
+        padding: 3px 8px;
+        border-radius: var(--border-radius-sm);
+        color: white;
+    }
+    .permission-status.active { background-color: var(--success-color); }
+    .permission-status.expirado { background-color: var(--warning-color); color: var(--neutral-darkest); }
+    .permission-status.revocado { background-color: var(--revoked-color); }
+
+    .revoke-button-container {
+        text-align: right;
+    }
+    
+    button.revoke, .button.revoke {
+        background-image: linear-gradient(135deg, var(--danger-color) 0%, #c82333 100%);
+        padding: 10px 20px;
+        font-size: 0.9em;
+    }
+     button.revoke:hover, .button.revoke:hover {
+        background-image: linear-gradient(135deg, #c82333 0%, #a51826 100%);
+     }
+
+
+    button, .button { /* Estilos generales de botón */
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px 35px;
+      background-image: linear-gradient(135deg, var(--secondary-brand-color) 0%, var(--primary-brand-color) 100%);
+      color: var(--surface-primary);
+      border: none;
+      border-radius: var(--border-radius-md);
+      cursor: pointer;
+      font-weight: 700;
+      font-family: var(--font-family-secondary);
+      font-size: 1.1em;
+      text-decoration: none;
+      text-align: center;
+      transition: transform var(--transition-short), box-shadow var(--transition-short), background-position var(--transition-long);
+      box-shadow: var(--box-shadow-medium);
+      background-size: 200% 100%;
+      background-position: 0% 50%;
+    }
+
+    button:hover, .button:hover,
+    button:focus, .button:focus {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: var(--box-shadow-lifted);
+      background-position: 100% 50%;
+    }
+
+    button:active, .button:active {
+      transform: translateY(0px) scale(1);
+      box-shadow: var(--box-shadow-medium);
+    }
+    
+    /* --- Keyframe Animations --- */
+    @keyframes sectionFadeInUp {
+        from { 
+            opacity: 0; 
+            transform: translateY(40px);
+        }
+        to { 
+            opacity: 1; 
+            transform: translateY(0);
+        }
+    }
+
+    footer {
+      background-color: var(--neutral-darkest);
+      color: var(--neutral-light);
+      text-align: center;
+      padding: 50px 20px;
+      margin-top: 70px;
+      font-size: 1em;
+      font-family: var(--font-family-secondary);
+    }
+    footer p {
+        margin: 0 0 10px 0;
+    }
+    footer p:last-child {
+        margin-bottom: 0;
+    }
+  </style>
+</head>
+<body>
+
+<nav id="mainNav">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo"> 
+      <img src="imagenes/logo1.png" alt="MedBlock Logo">
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Inicio</a> 
+      <a href="registrarPaciente.html" class="nav-link">Pacientes</a>
+      <a href="registrarmedico.html" class="nav-link">Médicos</a> 
+      <a href="historialClinico.html" class="nav-link">Mi Historial</a> 
+      <a href="permisos.html" class="nav-link active">Permisos</a> </div>
+  </div>
+</nav>
+
+<main>
+  <section class="page-section" id="grant-permission-section">
+    <h2>Otorgar Permiso de Acceso</h2>
+    <form action="#" method="POST"> <div class="form-grid">
+            <div class="form-group">
+                <label for="profesionalWallet">Dirección de Billetera del Profesional/Entidad</label>
+                <input type="text" id="profesionalWallet" name="profesionalWallet" placeholder="Ej: 0xABC123..." required>
+            </div>
+
+            <div class="form-group">
+                <label for="registroMedico">Seleccionar Registro/Documento Específico</label>
+                <select id="registroMedico" name="registroMedico" required>
+                    <option value="" disabled selected>Elija un registro...</option>
+                    <option value="radiografia_cubito_radio_20250320">Radiografía de Cúbito y Radio (20/03/2025)</option>
+                    <option value="analisis_sangre_20250205">Análisis de Sangre Completo (05/02/2025)</option>
+                    <option value="consulta_general_20250515">Consulta Médica General (15/05/2025)</option>
+                    <option value="todo_historial">Todo el Historial Clínico (Acceso Completo)</option>
+                </select>
+                 <small style="font-size: 0.85em; color: var(--neutral-medium); margin-top: 5px;">Seleccione el documento o tipo de información a la que desea dar acceso.</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="duracionPermiso">Duración del Permiso (Opcional)</label>
+                <select id="duracionPermiso" name="duracionPermiso">
+                    <option value="indefinido" selected>Indefinido (Hasta revocación manual)</option>
+                    <option value="24_horas">24 Horas</option>
+                    <option value="7_dias">7 Días</option>
+                    <option value="30_dias">30 Días</option>
+                    <option value="custom">Personalizado</option> 
+                </select>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit">Otorgar Permiso</button>
+        </div>
+    </form>
+  </section>
+
+  <section class="page-section" id="permission-history-section">
+    <h2>Historial de Permisos Otorgados</h2>
+    <ul class="permission-history-list">
+        <li class="permission-item status-active">
+            <div class="permission-details">
+                <p><strong>Profesional/Entidad:</strong> <span class="wallet-address">0x00552AD000...</span> (Dr. Carlos Rivadeneira)</p>
+                <p><strong>Registro:</strong> <span class="record-name">Radiografía de Cúbito y Radio (20/03/2025)</span></p>
+                <p><strong>Otorgado el:</strong> 21/05/2025, 10:00 AM</p>
+                <p><strong>Duración:</strong> 7 Días | <strong>Estado:</strong> <span class="permission-status active">Activo</span> (Expira en 5 días)</p>
+            </div>
+            <div class="revoke-button-container">
+                <button type="button" class="button revoke">Revocar</button>
+            </div>
+        </li>
+        <li class="permission-item status-expirado">
+            <div class="permission-details">
+                <p><strong>Profesional/Entidad:</strong> <span class="wallet-address">0xProfes10Na1BETA...</span> (Clínica Bienestar)</p>
+                <p><strong>Registro:</strong> <span class="record-name">Todo el Historial Clínico</span></p>
+                <p><strong>Otorgado el:</strong> 01/04/2025, 02:30 PM</p>
+                <p><strong>Duración:</strong> 24 Horas | <strong>Estado:</strong> <span class="permission-status expirado">Expirado</span></p>
+            </div>
+            <div class="revoke-button-container">
+                </div>
+        </li>
+        <li class="permission-item status-revocado">
+            <div class="permission-details">
+                <p><strong>Profesional/Entidad:</strong> <span class="wallet-address">0xDocGAMMA789...</span> (Dra. Elena Vargas)</p>
+                <p><strong>Registro:</strong> <span class="record-name">Análisis de Sangre Completo (05/02/2025)</span></p>
+                <p><strong>Otorgado el:</strong> 10/05/2025, 09:00 AM</p>
+                <p><strong>Duración:</strong> Indefinido | <strong>Estado:</strong> <span class="permission-status revocado">Revocado</span> (el 15/05/2025)</p>
+            </div>
+             <div class="revoke-button-container">
+                </div>
+        </li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  <p>&copy; 2025 MedBlock Solutions. Todos los derechos reservados.</p>
+  <p>Transformando la gestión de la salud con tecnología Blockchain para un futuro más seguro y eficiente.</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+<script src="js/web3.js"></script>
+<script>
+window.addEventListener('DOMContentLoaded', async function() {
+  setTimeout(async () => {
+    if (typeof window.obtenerRolWalletConectada !== 'function') return;
+    const rol = await window.obtenerRolWalletConectada();
+    const main = document.querySelector('main');
+    main.innerHTML = '';
+    if (rol === 'paciente') {
+      // PACIENTE: Otorgar/revocar permisos a médicos
+      const sectionPermiso = document.createElement('section');
+      sectionPermiso.className = 'page-section';
+      sectionPermiso.innerHTML = `
+        <h2>Otorgar Permiso a un Médico</h2>
+        <form id="formPermiso">
+          <div class="form-group">
+            <label for="profesionalWallet">Dirección de Billetera del Médico</label>
+            <input type="text" id="profesionalWallet" required placeholder="0x...">
+          </div>
+          <button type="submit">Otorgar Permiso</button>
+        </form>
+        <div id="statusPermiso"></div>
+      `;
+      main.appendChild(sectionPermiso);
+      document.getElementById('formPermiso').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const medico = document.getElementById('profesionalWallet').value;
+        const status = document.getElementById('statusPermiso');
+        try {
+          await otorgarPermiso(medico);
+          status.textContent = 'Permiso otorgado exitosamente.';
+          status.style.color = 'green';
+          this.reset();
+          cargarPermisos();
+        } catch (err) {
+          status.textContent = 'Error: ' + (err.message || err);
+          status.style.color = 'red';
+        }
+      });
+      // Lista de médicos con permiso
+      const sectionLista = document.createElement('section');
+      sectionLista.className = 'page-section';
+      sectionLista.innerHTML = `
+        <h2>Médicos con Permiso</h2>
+        <ul id="listaPermisos"></ul>
+      `;
+      main.appendChild(sectionLista);
+      async function cargarPermisos() {
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        const paciente = accounts[0];
+        // Usamos localStorage para recordar a qué médicos se ha dado permiso
+        const lista = document.getElementById('listaPermisos');
+        lista.innerHTML = '';
+        const permisosLocales = JSON.parse(localStorage.getItem('permisosOtorgados') || '[]');
+        for (const medico of permisosLocales) {
+          const tienePermiso = await contrato.methods.permisos(paciente, medico).call();
+          if (tienePermiso) {
+            const li = document.createElement('li');
+            li.innerHTML = `<b>Médico:</b> ${medico} <button class="button revoke" data-medico="${medico}">Revocar</button>`;
+            lista.appendChild(li);
+          }
+        }
+        // Manejar el click en revocar
+        document.querySelectorAll('.button.revoke').forEach(btn => {
+          btn.onclick = async function() {
+            const medico = this.getAttribute('data-medico');
+            try {
+              await revocarPermiso(medico);
+              // Eliminar de localStorage
+              const nuevos = permisosLocales.filter(m => m !== medico);
+              localStorage.setItem('permisosOtorgados', JSON.stringify(nuevos));
+              cargarPermisos();
+            } catch (err) {
+              alert('Error al revocar permiso: ' + (err.message || err));
+            }
+          };
+        });
+      }
+      // Guardar en localStorage cada vez que se otorga un permiso
+      document.getElementById('formPermiso').addEventListener('submit', function(e) {
+        const medico = document.getElementById('profesionalWallet').value;
+        let permisosLocales = JSON.parse(localStorage.getItem('permisosOtorgados') || '[]');
+        if (!permisosLocales.includes(medico)) {
+          permisosLocales.push(medico);
+          localStorage.setItem('permisosOtorgados', JSON.stringify(permisosLocales));
+        }
+      });
+      cargarPermisos();
+    } else if (rol === 'medico') {
+      // MÉDICO: Buscar paciente y ver historial si tiene permiso
+      const sectionBuscar = document.createElement('section');
+      sectionBuscar.className = 'page-section';
+      sectionBuscar.innerHTML = `
+        <h2>Buscar Paciente</h2>
+        <form id="formBuscarPaciente">
+          <div class="form-group">
+            <label for="pacienteBuscar">Dirección de Billetera del Paciente</label>
+            <input type="text" id="pacienteBuscar" required placeholder="0x...">
+          </div>
+          <button type="submit">Buscar Permiso</button>
+        </form>
+        <div id="statusBuscar"></div>
+        <ul id="listaHistorialesPaciente"></ul>
+      `;
+      main.appendChild(sectionBuscar);
+      document.getElementById('formBuscarPaciente').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const paciente = document.getElementById('pacienteBuscar').value;
+        const status = document.getElementById('statusBuscar');
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        const medico = accounts[0];
+        try {
+          const tienePermiso = await contrato.methods.permisos(paciente, medico).call();
+          if (tienePermiso) {
+            status.textContent = '¡Tienes permiso para ver el historial de este paciente!';
+            status.style.color = 'green';
+            // Mostrar historiales del paciente
+            const ids = await obtenerHistorialesPaciente(paciente);
+            const lista = document.getElementById('listaHistorialesPaciente');
+            lista.innerHTML = '';
+            for (const id of ids) {
+              const h = await obtenerHistorial(id);
+              const li = document.createElement('li');
+              li.innerHTML = `<b>Diagnóstico:</b> ${h.diagnostico}<br><b>Tratamiento:</b> ${h.tratamiento}<br><b>Medicamentos:</b> ${h.medicamentos}<br><b>Fecha:</b> ${new Date(h.fecha * 1000).toLocaleString()}`;
+              lista.appendChild(li);
+            }
+          } else {
+            status.textContent = 'No tienes permiso para ver el historial de este paciente.';
+            status.style.color = 'red';
+            document.getElementById('listaHistorialesPaciente').innerHTML = '';
+          }
+        } catch (err) {
+          status.textContent = 'Error: ' + (err.message || err);
+          status.style.color = 'red';
+        }
+      });
+    } else {
+      // No tiene permisos
+      const advertencia = document.createElement('div');
+      advertencia.style.color = 'red';
+      advertencia.style.fontWeight = 'bold';
+      advertencia.style.textAlign = 'center';
+      advertencia.style.margin = '40px auto';
+      advertencia.textContent = 'Debes estar registrado como paciente o médico para administrar o consultar permisos.';
+      main.appendChild(advertencia);
+      // Botones para registrarse
+      const registroDiv = document.createElement('div');
+      registroDiv.style.textAlign = 'center';
+      registroDiv.style.margin = '30px auto';
+      registroDiv.innerHTML = `
+        <a href="registrarPaciente.html" class="button accent" style="margin:10px;">Registrarme como Paciente</a>
+        <a href="registrarMedico.html" class="button primary" style="margin:10px;">Registrarme como Médico</a>
+      `;
+      main.appendChild(registroDiv);
+    }
+  }, 800);
+});
+</script>
+
+<script>
+  // JavaScript for Navbar hide/show on scroll
+  let lastScrollTop = 0;
+  const navbar = document.getElementById('mainNav');
+  const navbarHeightVariable = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--navbar-height'));
+  const scrollThreshold = navbarHeightVariable / 2; 
+
+  window.addEventListener('scroll', function() {
+    let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+    if (scrollTop > lastScrollTop && scrollTop > scrollThreshold) { 
+      navbar.classList.add('nav-hidden');
+    } else {
+      if (scrollTop + window.innerHeight < document.documentElement.scrollHeight || scrollTop === 0) {
+        navbar.classList.remove('nav-hidden');
+      }
+    }
+    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; 
+  }, false);
+
+  // Script to update active nav link
+  document.addEventListener('DOMContentLoaded', function() {
+    const currentPage = window.location.pathname.split('/').pop() || 'inicio.html'; 
+    const navLinks = document.querySelectorAll('.nav-links a.nav-link');
+
+    navLinks.forEach(link => {
+      const linkPage = link.getAttribute('href').split('/').pop();
+      // Handle root path case for 'inicio.html' and current page
+      if (linkPage === currentPage || (currentPage === '' && linkPage === 'inicio.html') || (currentPage === 'gestionar-permisos.html' && linkPage === 'gestionar-permisos.html')) {
+        if (link.getAttribute('href') === 'gestionar-permisos.html') { // Specifically for this page
+            link.classList.add('active');
+        } else if (currentPage === linkPage || (currentPage === '' && linkPage === 'inicio.html')) {
+             link.classList.add('active');
+        }
+         else {
+            link.classList.remove('active');
+        }
+      } else {
+        link.classList.remove('active');
+      }
+    });
+    // Ensure only the correct "Permisos" link is active if multiple conditions met above
+    // This is a bit of a brute force way for static pages.
+    let foundActive = false;
+    navLinks.forEach(link => {
+        if(link.getAttribute('href') === 'gestionar-permisos.html' && (window.location.pathname.includes('gestionar-permisos.html'))) {
+            link.classList.add('active');
+            foundActive = true;
+        } else if (foundActive && link.getAttribute('href') !== 'gestionar-permisos.html') {
+            // if another link was marked active by a broader rule, unmark it
+            // This logic could be better. A simple "if current page URL matches link href, add active" is often enough.
+        }
+    });
+    // Simplified active link logic:
+    const currentPath = window.location.pathname;
+    navLinks.forEach(link => {
+        link.classList.remove('active'); // Remove active from all first
+        const linkPath = new URL(link.href, window.location.origin).pathname;
+        if (linkPath === currentPath) {
+            link.classList.add('active');
+        }
+    });
+     // If still no active link and on root path, activate "Inicio"
+    if (!document.querySelector('.nav-links a.nav-link.active') && (currentPath === '/' || currentPath.endsWith('index.html') || currentPath.endsWith('inicio.html'))) {
+        document.querySelector('.nav-links a.nav-link[href="index.html"], .nav-links a.nav-link[href="inicio.html"]')?.classList.add('active');
+    }
+
+
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MedBlock - Registrar Médico</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+  <script src="js/web3.js"></script>
+  <style>
+    :root {
+      /* --- Paleta de Colores Profesional --- */
+      --primary-brand-color: #005A9C;
+      --secondary-brand-color: #007BFF;
+      --accent-color: #00BFA5;
+      
+      --neutral-darkest: #212529;
+      --neutral-dark: #343A40;
+      --neutral-medium: #6C757D;
+      --neutral-light: #CED4DA;
+      --neutral-lighter: #E9ECEF;
+      --neutral-lightest: #F8F9FA;
+
+      --background-body: #F4F7FC;
+      --surface-primary: #FFFFFF;
+      
+      --success-color: #28A745;
+      --info-color: #17A2B8;
+      --warning-color: #FFC107;
+      --danger-color: #DC3545;
+
+      /* --- Tipografía --- */
+      --font-family-primary: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+      --font-family-secondary: 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+      
+      /* --- UI Elements --- */
+      --border-radius-sm: 5px;
+      --border-radius-md: 10px;
+      --border-radius-lg: 15px;
+      
+      --box-shadow-subtle: 0 2px 4px rgba(0, 0, 0, 0.06);
+      --box-shadow-medium: 0 5px 15px rgba(0, 0, 0, 0.1);
+      --box-shadow-strong: 0 10px 25px rgba(0,0,0,0.12);
+      --box-shadow-lifted: 0 12px 30px rgba(0,0,0,0.15);
+
+      /* --- Transitions & Animations --- */
+      --transition-short: 0.2s ease-out;
+      --transition-medium: 0.3s ease-out;
+      --transition-long: 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+      
+      /* --- Navbar Specific --- */
+      --navbar-height: 90px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-family-secondary);
+      margin: 0;
+      padding-top: var(--navbar-height); 
+      background-color: var(--background-body);
+      color: var(--neutral-dark);
+      line-height: 1.7;
+      font-size: 16px;
+      overflow-x: hidden;
+    }
+
+    nav#mainNav {
+      background-color: rgba(255, 255, 255, 0.97); 
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: var(--box-shadow-medium);
+      border-bottom: 1px solid var(--neutral-lighter);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      z-index: 1000;
+      transition: top 0.4s var(--transition-medium), background-color 0.3s;
+      height: var(--navbar-height);
+      display: flex;
+      align-items: center;
+    }
+    
+    .nav-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        max-width: 1250px; 
+        margin: 0 auto;
+        padding: 0 25px;
+    }
+
+    #mainNav.nav-hidden {
+        top: calc(-1 * var(--navbar-height) - 10px);
+    }
+
+    .nav-logo img {
+        height: 60px; 
+        display: block;
+    }
+    
+    .nav-links {
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+
+    nav#mainNav a.nav-link {
+      color: var(--neutral-darkest);
+      text-decoration: none;
+      font-weight: 600;
+      font-family: var(--font-family-secondary);
+      padding: 0 20px; 
+      margin: 0 10px; 
+      border-bottom: 4px solid transparent;
+      transition: color var(--transition-short), border-color var(--transition-short);
+      font-size: 1.15em; 
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      display: inline-flex;
+      align-items: center;
+      height: 100%;
+    }
+
+    nav#mainNav a.nav-link:hover, 
+    nav#mainNav a.nav-link:focus, 
+    nav#mainNav a.nav-link.active {
+      color: var(--primary-brand-color);
+      border-bottom-color: var(--primary-brand-color);
+    }
+
+    main {
+      display: block;
+      padding: 50px 20px;
+      max-width: 900px; 
+      margin: 40px auto;
+    }
+
+    section#registration-form-section {
+      background-color: var(--surface-primary);
+      padding: 40px;
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--box-shadow-strong);
+      opacity: 0;
+      transform: translateY(40px);
+      animation-name: sectionFadeInUp;
+      animation-duration: 0.8s;
+      animation-timing-function: var(--transition-long);
+      animation-delay: 0.1s;
+      animation-fill-mode: forwards;
+    }
+
+
+    h2 {
+      font-family: var(--font-family-primary);
+      color: var(--primary-brand-color);
+      margin-top: 0;
+      margin-bottom: 35px;
+      font-size: 2.2em;
+      font-weight: 500;
+      border-bottom: 2px solid var(--secondary-brand-color);
+      padding-bottom: 18px;
+      text-align: center; 
+      width: 100%;
+    }
+
+    /* --- Form Styling --- */
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    @media (min-width: 768px) {
+        .form-grid.two-columns {
+            grid-template-columns: 1fr 1fr;
+            gap: 30px 25px; 
+        }
+        .form-grid.three-columns .form-group { /* For smaller items like Años Exp. */
+             /* No specific change needed here if items naturally flow */
+        }
+    }
+
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        font-family: var(--font-family-secondary);
+        font-weight: 600;
+        color: var(--neutral-dark);
+        margin-bottom: 8px;
+        font-size: 0.95em;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="date"], /* Though not used in this form */
+    .form-group input[type="number"],
+    .form-group input[type="email"],
+    .form-group input[type="tel"],
+    .form-group select,
+    .form-group textarea { /* Though not used in this form */
+        width: 100%;
+        padding: 14px 18px;
+        font-family: var(--font-family-secondary);
+        font-size: 1em;
+        color: var(--neutral-darkest);
+        background-color: var(--neutral-lightest);
+        border: 1px solid var(--neutral-light);
+        border-radius: var(--border-radius-sm);
+        transition: border-color var(--transition-short), box-shadow var(--transition-short);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--secondary-brand-color);
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        background-color: var(--surface-primary);
+    }
+    
+    .form-group select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23343A40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1em;
+        padding-right: 2.5rem;
+    }
+    
+    .form-actions {
+        margin-top: 35px;
+        text-align: right;
+    }
+
+    button, .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px 35px;
+      background-image: linear-gradient(135deg, var(--secondary-brand-color) 0%, var(--primary-brand-color) 100%);
+      color: var(--surface-primary);
+      border: none;
+      border-radius: var(--border-radius-md);
+      cursor: pointer;
+      font-weight: 700;
+      font-family: var(--font-family-secondary);
+      font-size: 1.1em;
+      text-decoration: none;
+      text-align: center;
+      transition: transform var(--transition-short), box-shadow var(--transition-short), background-position var(--transition-long);
+      box-shadow: var(--box-shadow-medium);
+      background-size: 200% 100%;
+      background-position: 0% 50%;
+    }
+
+    button:hover, .button:hover,
+    button:focus, .button:focus {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: var(--box-shadow-lifted);
+      background-position: 100% 50%;
+    }
+
+    button:active, .button:active {
+      transform: translateY(0px) scale(1);
+      box-shadow: var(--box-shadow-medium);
+    }
+    
+    /* --- Keyframe Animations --- */
+    @keyframes sectionFadeInUp {
+        from { 
+            opacity: 0; 
+            transform: translateY(40px);
+        }
+        to { 
+            opacity: 1; 
+            transform: translateY(0);
+        }
+    }
+
+    footer {
+      background-color: var(--neutral-darkest);
+      color: var(--neutral-light);
+      text-align: center;
+      padding: 50px 20px;
+      margin-top: 70px;
+      font-size: 1em;
+      font-family: var(--font-family-secondary);
+    }
+    footer p {
+        margin: 0 0 10px 0;
+    }
+    footer p:last-child {
+        margin-bottom: 0;
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .status {
+        margin-top: 20px;
+        padding: 10px;
+        border-radius: 5px;
+        display: none;
+    }
+    
+    .success {
+        background-color: #dff0d8;
+        color: #3c763d;
+        border: 1px solid #d6e9c6;
+    }
+    
+    .error {
+        background-color: #f2dede;
+        color: #a94442;
+        border: 1px solid #ebccd1;
+    }
+  </style>
+</head>
+<body>
+
+<nav id="mainNav">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo"> 
+      <img src="imagenes/logo1.png" alt="MedBlock Logo">
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Inicio</a> 
+      <a href="registrarPaciente.html" class="nav-link">Pacientes</a>
+      <a href="registrarMedico.html" class="nav-link active">Médicos</a> <a href="historialClinico.html" class="nav-link">Mi Historial</a>
+      <a href="permisos.html" class="nav-link">Permisos</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <section id="registration-form-section">
+    <h2>Registro de Nuevo Profesional Médico</h2>
+    <div class="container">
+        <h1>Registrar Médico</h1>
+        <form id="registroMedicoForm">
+            <div class="form-grid two-columns">
+                <div class="form-group">
+                    <label for="nombreCompletoMedico">Nombre Completo</label>
+                    <input type="text" id="nombreCompletoMedico" name="nombreCompletoMedico" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="documentoIdentidadMedico">Documento de Identidad (Cédula/Pasaporte)</label>
+                    <input type="text" id="documentoIdentidadMedico" name="documentoIdentidadMedico" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="tituloProfesional">Título Profesional</label>
+                    <input type="text" id="tituloProfesional" name="tituloProfesional" placeholder="Ej: Médico Cirujano" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="codigoMedico">Nº de Registro Profesional / Código Médico</label>
+                    <input type="text" id="codigoMedico" name="codigoMedico" placeholder="Ej: MSP-12345" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="especialidad">Especialidad Principal</label>
+                    <input type="text" id="especialidad" name="especialidad" placeholder="Ej: Cardiología, Pediatría">
+                </div>
+                 <div class="form-group">
+                    <label for="anosExperiencia">Años de Experiencia Profesional</label>
+                    <input type="number" id="anosExperiencia" name="anosExperiencia" min="0" placeholder="Ej: 10">
+                </div>
+            </div>
+
+            <div class="form-grid"> <div class="form-group">
+                    <label for="institucionLabora">Institución donde labora (Opcional)</label>
+                    <input type="text" id="institucionLabora" name="institucionLabora" placeholder="Ej: Hospital Metropolitano">
+                </div>
+
+                <div class="form-group">
+                    <label for="cargoActual">Cargo Actual (Opcional)</label>
+                    <input type="text" id="cargoActual" name="cargoActual" placeholder="Ej: Jefe de Departamento, Médico Residente">
+                </div>
+            </div>
+            
+            <hr style="margin: 30px 0; border: 0; border-top: 1px solid var(--neutral-lighter);">
+            
+            <h3 style="font-family: var(--font-family-primary); color: var(--primary-brand-color); font-weight: 500; margin-bottom: 15px; font-size:1.5em;">Datos de Contacto y Acceso</h3>
+            <div class="form-grid two-columns">
+                <div class="form-group">
+                    <label for="telefonoMedico">Número de Teléfono</label>
+                    <input type="tel" id="telefonoMedico" name="telefonoMedico" placeholder="+593 XXX XXX XXX" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="emailMedico">Correo Electrónico Profesional</label>
+                    <input type="email" id="emailMedico" name="emailMedico" placeholder="doctor@ejemplo.com" required>
+                </div>
+            </div>
+            <div class="form-grid">
+                 <div class="form-group">
+                    <label for="billeteraDigitalMedico">Dirección de Billetera Digital (Wallet)</label>
+                    <input type="text" id="billeteraDigitalMedico" name="billeteraDigitalMedico" placeholder="Ej: 0xABC..." required>
+                    <small style="font-size: 0.85em; color: var(--neutral-medium); margin-top: 5px;">Esta dirección se usará para identificar al profesional en la blockchain.</small>
+                </div>
+            </div>
+
+
+            <div class="form-actions">
+                <button type="submit">Registrar Médico</button>
+            </div>
+        </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>&copy; 2025 MedBlock Solutions. Todos los derechos reservados.</p>
+  <p>Transformando la gestión de la salud con tecnología Blockchain para un futuro más seguro y eficiente.</p>
+</footer>
+
+<script>
+  // JavaScript for Navbar hide/show on scroll
+  let lastScrollTop = 0;
+  const navbar = document.getElementById('mainNav');
+  const navbarHeightVariable = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--navbar-height'));
+  const scrollThreshold = navbarHeightVariable / 2; 
+
+  window.addEventListener('scroll', function() {
+    let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+    if (scrollTop > lastScrollTop && scrollTop > scrollThreshold) { 
+      navbar.classList.add('nav-hidden');
+    } else {
+      if (scrollTop + window.innerHeight < document.documentElement.scrollHeight || scrollTop === 0) {
+        navbar.classList.remove('nav-hidden');
+      }
+    }
+    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; 
+  }, false);
+
+  // Script to update active nav link
+  document.addEventListener('DOMContentLoaded', function() {
+    const currentPage = window.location.pathname.split('/').pop() || 'inicio.html'; // Default to inicio.html if path is empty
+    const navLinks = document.querySelectorAll('.nav-links a.nav-link');
+
+    navLinks.forEach(link => {
+      const linkPage = link.getAttribute('href').split('/').pop();
+      // Handle case where link is to "inicio.html" and currentPage might be "" (root)
+      if (linkPage === currentPage || (currentPage === '' && linkPage === 'inicio.html')) {
+        link.classList.add('active');
+      } else {
+        link.classList.remove('active');
+      }
+    });
+  });
+
+  document.getElementById('registroMedicoForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const nombreCompletoMedico = document.getElementById('nombreCompletoMedico').value;
+    const documentoIdentidadMedico = document.getElementById('documentoIdentidadMedico').value;
+    const tituloProfesional = document.getElementById('tituloProfesional').value;
+    const codigoMedico = document.getElementById('codigoMedico').value;
+    const especialidad = document.getElementById('especialidad').value;
+    const anosExperiencia = document.getElementById('anosExperiencia').value;
+    const telefonoMedico = document.getElementById('telefonoMedico').value;
+    const emailMedico = document.getElementById('emailMedico').value;
+    const billeteraDigitalMedico = document.getElementById('billeteraDigitalMedico').value;
+    
+    try {
+      await registrarMedico(nombreCompletoMedico, documentoIdentidadMedico, tituloProfesional, codigoMedico, especialidad, anosExperiencia, telefonoMedico, emailMedico, billeteraDigitalMedico);
+      mostrarMensaje('Médico registrado exitosamente', 'success');
+      this.reset();
+    } catch (error) {
+      mostrarMensaje('Error al registrar médico: ' + error.message, 'error');
+    }
+  });
+  
+  function mostrarMensaje(mensaje, tipo) {
+    const status = document.getElementById('status');
+    status.textContent = mensaje;
+    status.className = 'status ' + tipo;
+    status.style.display = 'block';
+    
+    setTimeout(() => {
+      status.style.display = 'none';
+    }, 5000);
+  }
+
+  window.addEventListener('DOMContentLoaded', async function() {
+    setTimeout(async () => {
+      if (typeof window.obtenerRolWalletConectada !== 'function') return;
+      const rol = await window.obtenerRolWalletConectada();
+      const form = document.getElementById('registroMedicoForm');
+      const container = document.querySelector('.container');
+      if (rol === 'medico') {
+        if (form) form.style.display = 'none';
+        if (container) {
+          const msg = document.createElement('div');
+          msg.style.color = 'green';
+          msg.style.fontWeight = 'bold';
+          msg.style.textAlign = 'center';
+          msg.style.margin = '30px auto';
+          msg.textContent = 'Ya estás registrado como médico.';
+          container.appendChild(msg);
+        }
+      } else if (rol === 'paciente') {
+        if (form) form.style.display = 'none';
+        if (container) {
+          const msg = document.createElement('div');
+          msg.style.color = 'red';
+          msg.style.fontWeight = 'bold';
+          msg.style.textAlign = 'center';
+          msg.style.margin = '30px auto';
+          msg.textContent = 'No puedes registrarte como médico porque ya eres paciente.';
+          container.appendChild(msg);
+        }
+      } else {
+        if (form) form.style.display = '';
+      }
+    }, 800);
+  });
+</script>
+
+</body>
+</html>

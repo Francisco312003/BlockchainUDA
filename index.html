@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MedBlock - Inicio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+  <script src="js/web3.js"></script>
+  <style>
+    :root {
+      /* --- Paleta de Colores Profesional --- */
+      --primary-brand-color: #005A9C;
+      --secondary-brand-color: #007BFF;
+      --accent-color: #00BFA5;
+      
+      --neutral-darkest: #212529;
+      --neutral-dark: #343A40;
+      --neutral-medium: #6C757D;
+      --neutral-light: #CED4DA;
+      --neutral-lighter: #E9ECEF;
+      --neutral-lightest: #F8F9FA;
+
+      --background-body: #F4F7FC;
+      --surface-primary: #FFFFFF;
+      
+      --success-color: #28A745;
+      --info-color: #17A2B8;
+      --warning-color: #FFC107;
+      --danger-color: #DC3545;
+
+      /* --- Tipografía --- */
+      --font-family-primary: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+      --font-family-secondary: 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+      
+      /* --- UI Elements --- */
+      --border-radius-sm: 5px;
+      --border-radius-md: 10px;
+      --border-radius-lg: 15px;
+      
+      --box-shadow-subtle: 0 2px 4px rgba(0, 0, 0, 0.06);
+      --box-shadow-medium: 0 5px 15px rgba(0, 0, 0, 0.1);
+      --box-shadow-strong: 0 10px 25px rgba(0,0,0,0.12);
+      --box-shadow-lifted: 0 12px 30px rgba(0,0,0,0.15);
+
+      /* --- Transitions & Animations --- */
+      --transition-short: 0.2s ease-out;
+      --transition-medium: 0.3s ease-out;
+      --transition-long: 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+      
+      /* --- Navbar Specific --- */
+      --navbar-height: 150px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-family-secondary);
+      margin: 0;
+      padding-top: var(--navbar-height); 
+      background-color: var(--background-body);
+      color: var(--neutral-dark);
+      line-height: 1.7;
+      font-size: 16px;
+      overflow-x: hidden;
+    }
+
+    nav#mainNav {
+      background-color: rgba(255, 255, 255, 0.97); 
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: var(--box-shadow-medium);
+      border-bottom: 1px solid var(--neutral-lighter);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      z-index: 1000;
+      transition: top 0.4s var(--transition-medium), background-color 0.3s;
+      height: var(--navbar-height);
+      display: flex;
+      align-items: center;
+    }
+    
+    .nav-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        max-width: 1250px;
+        margin: 0 auto;
+        padding: 0 25px;
+    }
+
+    #mainNav.nav-hidden {
+        top: calc(-1 * var(--navbar-height) - 10px);
+    }
+
+    .nav-logo img {
+        height: 100px;
+        display: block;
+    }
+    
+    .nav-links {
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+
+    nav#mainNav a.nav-link {
+      color: var(--neutral-darkest);
+      text-decoration: none;
+      font-weight: 600;
+      font-family: var(--font-family-secondary);
+      padding: 0 20px; 
+      margin: 0 10px; 
+      border-bottom: 4px solid transparent;
+      transition: color var(--transition-short), border-color var(--transition-short);
+      font-size: 1.15em;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      display: inline-flex;
+      align-items: center;
+      height: 100%;
+    }
+
+    nav#mainNav a.nav-link:hover, 
+    nav#mainNav a.nav-link:focus, 
+    nav#mainNav a.nav-link.active {
+      color: var(--primary-brand-color);
+      border-bottom-color: var(--primary-brand-color);
+    }
+
+    main {
+      padding: 60px 20px;
+      max-width: 1200px;
+      margin: 40px auto;
+      display: grid;
+      gap: 60px;
+    }
+
+    section {
+      background-color: var(--surface-primary);
+      padding: 40px;
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--box-shadow-strong);
+      opacity: 0;
+      transform: translateY(30px);
+      animation: sectionFadeInUp 0.8s var(--transition-long) forwards;
+    }
+    section:nth-child(1) { animation-delay: 0.1s; }
+    section:nth-child(2) { animation-delay: 0.3s; }
+
+
+    h2 {
+      font-family: var(--font-family-primary);
+      color: var(--primary-brand-color);
+      margin-top: 0;
+      margin-bottom: 35px;
+      font-size: 2.2em;
+      font-weight: 500;
+      border-bottom: 2px solid var(--secondary-brand-color);
+      padding-bottom: 18px;
+      display: inline-block;
+    }
+
+    /* .button class can be applied to <a> tags as well */
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px 35px;
+      background-image: linear-gradient(135deg, var(--secondary-brand-color) 0%, var(--primary-brand-color) 100%);
+      color: var(--surface-primary);
+      border: none;
+      border-radius: var(--border-radius-md);
+      cursor: pointer;
+      font-weight: 700;
+      font-family: var(--font-family-secondary);
+      font-size: 1.1em;
+      text-decoration: none; /* Important for <a> tags styled as buttons */
+      text-align: center;
+      transition: transform var(--transition-short), box-shadow var(--transition-short), background-position var(--transition-long);
+      box-shadow: var(--box-shadow-medium);
+      background-size: 200% 100%;
+      background-position: 0% 50%;
+    }
+
+    .button:hover,
+    .button:focus {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: var(--box-shadow-lifted);
+      background-position: 100% 50%;
+    }
+
+    .button:active {
+      transform: translateY(0px) scale(1);
+      box-shadow: var(--box-shadow-medium);
+    }
+    
+    .button.primary { /* This style was already available if you used <button class="primary"> */
+        /* It will use the default gradient, if you need a specific color for primary, define it */
+    }
+
+    .button.accent {
+        background-image: linear-gradient(135deg, var(--accent-color) 0%, #009682 100%);
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 40px;
+    }
+
+    .card {
+      background-color: var(--surface-primary);
+      padding: 0;
+      border-radius: var(--border-radius-lg);
+      text-align: center;
+      border: 1px solid var(--neutral-lighter);
+      box-shadow: var(--box-shadow-medium);
+      transition: transform var(--transition-medium), box-shadow var(--transition-medium);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      opacity: 0;
+      transform: scale(0.95);
+      animation: cardPopIn 0.6s var(--transition-long) forwards;
+    }
+    .card:nth-child(1) { animation-delay: 0.3s; }
+    .card:nth-child(2) { animation-delay: 0.4s; }
+    .card:nth-child(3) { animation-delay: 0.5s; }
+    .card:nth-child(4) { animation-delay: 0.6s; }
+
+
+    .card:hover {
+      transform: translateY(-12px) scale(1.04);
+      box-shadow: var(--box-shadow-lifted);
+    }
+
+    .card-image-container {
+        width: 100%;
+        height: 300px;
+        background-color: var(--neutral-lightest);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        border-bottom: 1px solid var(--neutral-lighter);
+    }
+    .card-image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; 
+        transition: transform 0.4s var(--transition-long);
+    }
+    .card:hover .card-image-container img {
+        transform: scale(1.12);
+    }
+
+    .card-content {
+        padding: 30px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .card-content p {
+      margin-top: 0;
+      margin-bottom: 30px;
+      font-size: 1.2em;
+      font-family: var(--font-family-primary);
+      font-weight: 400;
+      color: var(--neutral-darkest);
+      line-height: 1.6;
+      flex-grow: 1;
+    }
+    
+    .card-content .button { /* Styling for <a> tags as buttons in cards */
+        margin-top: auto; 
+        width: 100%;
+        padding: 18px 25px;
+        font-size: 1.15em;
+    }
+
+    .activity-feed {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .activity-feed li {
+      position: relative;
+      padding: 20px 20px 20px 55px;
+      margin-bottom: 20px;
+      background-color: var(--surface-primary);
+      border-radius: var(--border-radius-md);
+      border: 1px solid var(--neutral-lighter);
+      font-size: 1.05em;
+      color: var(--neutral-dark);
+      box-shadow: var(--box-shadow-subtle);
+      transition: transform var(--transition-short), box-shadow var(--transition-short);
+    }
+    .activity-feed li:hover {
+        transform: translateX(5px);
+        box-shadow: var(--box-shadow-medium);
+    }
+
+    .activity-feed li::before {
+      content: '';
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background-color: var(--info-color);
+      box-shadow: 0 0 10px rgba(23, 162, 184, 0.6);
+    }
+    
+    .activity-feed li.access-granted::before { background-color: var(--success-color); box-shadow: 0 0 10px rgba(40, 167, 69, 0.6); }
+    .activity-feed li.history-viewed::before { background-color: var(--info-color); box-shadow: 0 0 10px rgba(23, 162, 184, 0.6); }
+    .activity-feed li.alert::before { background-color: var(--warning-color); box-shadow: 0 0 10px rgba(255, 193, 7, 0.6); }
+
+
+    footer {
+      background-color: var(--neutral-darkest);
+      color: var(--neutral-light);
+      text-align: center;
+      padding: 50px 20px;
+      margin-top: 70px;
+      font-size: 1em;
+      font-family: var(--font-family-secondary);
+    }
+    footer p {
+        margin: 0 0 10px 0;
+    }
+    footer p:last-child {
+        margin-bottom: 0;
+    }
+
+    /* --- Keyframe Animations --- */
+    @keyframes sectionFadeInUp {
+        from { opacity: 0; transform: translateY(40px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes cardPopIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Estilos para el indicador de MetaMask */
+    #metaMaskStatus {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-weight: bold;
+        z-index: 1000;
+    }
+    
+    .connected {
+        background-color: #4CAF50;
+        color: white;
+    }
+    
+    .disconnected {
+        background-color: #f44336;
+        color: white;
+    }
+    
+    .wrong-network {
+        background-color: #ff9800;
+        color: white;
+    }
+
+  </style>
+</head>
+<body>
+
+<div id="metaMaskStatus">Verificando conexión...</div>
+
+<nav id="mainNav">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo"> <img src="imagenes/logo1.png" alt="MedBlock Logo">
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link active">Inicio</a> <a href="registrarPaciente.html" class="nav-link">Pacientes</a> <a href="registrarMedico.html" class="nav-link">Médicos</a> <a href="historialClinico.html" class="nav-link">Mi Historial</a> <a href="permisos.html" class="nav-link">Permisos</a> </div>
+  </div>
+</nav>
+
+<main>
+  <section>
+    <h2>Panel de Acciones Directas</h2>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-image-container">
+            <img src="imagenes/iconoregistropaciente.jpg" alt="Registrar Paciente">
+        </div>
+        <div class="card-content">
+            <p>Registre nuevos pacientes de forma rápida y segura en la plataforma.</p>
+            <a href="registrarPaciente.html" class="button primary">Registrar Paciente</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-image-container">
+             <img src="imagenes/iconoregitrarmedico.png" alt="Registrar Médico">
+        </div>
+        <div class="card-content">
+            <p>Incorpore profesionales médicos al sistema para una gestión colaborativa.</p>
+            <a href="registrarMedico.html" class="button primary">Registrar Médico</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-image-container">
+             <img src="imagenes/iconohistorial.jpg" alt="Acceder Historial">
+        </div>
+        <div class="card-content">
+            <p>Consulte historiales clínicos autorizados con total trazabilidad y seguridad.</p>
+            <a href="historialClinico.html" class="button accent">Acceder Historial</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-image-container">
+            <img src="imagenes/iconopermiso.jpg" alt="Gestionar Permisos">
+        </div>
+        <div class="card-content">
+            <p>Administre de forma granular quién accede a su información y por cuánto tiempo.</p>
+            <a href="permisos.html" class="button accent">Gestionar Permisos</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Actividad y Notificaciones del Sistema</h2>
+    <ul class="activity-feed">
+      <li class="history-viewed">El Dr. Carlos Rivadeneira accedió al historial de Sofía Alarcón (21/05/2025 08:00 AM)</li>
+      <li class="access-granted">Paciente Pablo Vélez otorgó permiso de acceso temporal al Dr. Ricardo Padilla (20/05/2025 04:15 PM)</li>
+      <li class="alert">Alerta de Seguridad: Intento de acceso con credenciales inválidas detectado (20/05/2025 11:30 PM)</li>
+      <li class="history-viewed">Usted visualizó su resumen de permisos (19/05/2025 09:00 AM)</li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  <p>&copy; 2025 MedBlock Solutions. Todos los derechos reservados.</p>
+  <p>Transformando la gestión de la salud con tecnología Blockchain para un futuro más seguro y eficiente.</p>
+</footer>
+
+<script>
+  // JavaScript for Navbar hide/show on scroll
+  let lastScrollTop = 0;
+  const navbar = document.getElementById('mainNav');
+  const navbarHeightVariable = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--navbar-height'));
+  const scrollThreshold = navbarHeightVariable / 2; 
+
+  window.addEventListener('scroll', function() {
+    let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+    if (scrollTop > lastScrollTop && scrollTop > scrollThreshold) { 
+      navbar.classList.add('nav-hidden');
+    } else {
+      if (scrollTop + window.innerHeight < document.documentElement.scrollHeight || scrollTop === 0) {
+        navbar.classList.remove('nav-hidden');
+      }
+    }
+    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; 
+  }, false);
+
+  // Script to update active nav link (optional, basic example)
+  // This is a very basic example. For a real app, especially a single-page app (SPA)
+  // or one with more complex routing, you'd use a more robust solution.
+  document.addEventListener('DOMContentLoaded', function() {
+    const currentPage = window.location.pathname.split('/').pop() || 'inicio.html'; // Get current page filename
+    const navLinks = document.querySelectorAll('.nav-links a.nav-link');
+
+    navLinks.forEach(link => {
+      const linkPage = link.getAttribute('href').split('/').pop();
+      if (linkPage === currentPage) {
+        link.classList.add('active');
+      } else {
+        link.classList.remove('active'); // Ensure only current is active
+      }
+    });
+  });
+
+  // Función para verificar el estado de MetaMask
+  async function verificarConexionMetaMask() {
+    const statusDiv = document.getElementById('metaMaskStatus');
+    
+    if (typeof window.ethereum !== 'undefined') {
+      try {
+        // Verificar si está conectado
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        
+        if (accounts.length > 0) {
+          // Verificar la red
+          const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+          
+          if (chainId === '0xaa36a7') { // ID de la red Sepolia
+            statusDiv.textContent = 'MetaMask Conectado - Red Sepolia';
+            statusDiv.className = 'connected';
+          } else {
+            statusDiv.textContent = 'MetaMask Conectado - Red Incorrecta';
+            statusDiv.className = 'wrong-network';
+          }
+        } else {
+          statusDiv.textContent = 'MetaMask No Conectado';
+          statusDiv.className = 'disconnected';
+        }
+      } catch (error) {
+        statusDiv.textContent = 'Error al conectar con MetaMask';
+        statusDiv.className = 'disconnected';
+      }
+    } else {
+      statusDiv.textContent = 'MetaMask No Instalado';
+      statusDiv.className = 'disconnected';
+    }
+  }
+  
+  // Verificar conexión al cargar la página
+  window.addEventListener('load', verificarConexionMetaMask);
+  
+  // Verificar conexión cuando cambia la cuenta
+  if (window.ethereum) {
+    window.ethereum.on('accountsChanged', verificarConexionMetaMask);
+    window.ethereum.on('chainChanged', verificarConexionMetaMask);
+  }
+
+</script>
+
+</body>
+</html>
